@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.26;
 
-import { Test } from "forge-std/Test.sol";
-import { TaskManager } from "src/TaskManager.sol";
-import { DeployTaskManager } from "script/DeployTaskManager.s.sol";
+import {Test} from "forge-std/Test.sol";
+import {TaskManager} from "src/TaskManager.sol";
+import {DeployTaskManager} from "script/DeployTaskManager.s.sol";
 
 contract TaskManagerTest is Test {
     TaskManager private taskManager;
@@ -49,7 +49,7 @@ contract TaskManagerTest is Test {
     function testCompleteTaskRevertsIfNotOwner() public {
         vm.prank(user);
         taskManager.createTask{value: 10}("Test Task", "This is a test task.", block.timestamp + 1 days);
-        
+
         // Simulate another user trying to complete the task
         address otherUser = address(0x123);
         vm.startPrank(otherUser);
@@ -92,7 +92,7 @@ contract TaskManagerTest is Test {
         vm.startPrank(user);
         taskManager.createTask{value: 10}("Task 1", "Description 1", block.timestamp + 1 days);
         taskManager.createTask{value: 50}("Task 2", "Description 2", block.timestamp + 2 days);
-        
+
         TaskManager.Task[] memory tasks = taskManager.getTasks();
         vm.stopPrank();
 
@@ -100,6 +100,7 @@ contract TaskManagerTest is Test {
         assertEq(tasks[0].title, "Task 1");
         assertEq(tasks[1].title, "Task 2");
     }
+
     function testGetTasksEmpty() public view {
         TaskManager.Task[] memory tasks = taskManager.getTasks();
         assertEq(tasks.length, 0);
@@ -137,7 +138,7 @@ contract TaskManagerTest is Test {
         vm.startPrank(user);
         taskManager.createTask{value: 10}("Task 1", "Description 1", block.timestamp + 1 days);
         taskManager.createTask{value: 20}("Task 2", "Description 2", block.timestamp + 2 days);
-        
+
         uint256 count = taskManager.getTasksCount();
         vm.stopPrank();
 

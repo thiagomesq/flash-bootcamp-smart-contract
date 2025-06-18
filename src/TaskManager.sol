@@ -27,14 +27,14 @@ contract TaskManager {
     uint256 private nextTaskId;
 
     event TaskCreated(
-        uint256 indexed id, 
+        uint256 indexed id,
         uint256 indexed stake,
-        string title, 
-        string description, 
-        uint256 createdAt, 
-        uint256 completedAt, 
-        uint256 indexed dueDate, 
-        bool isCompleted, 
+        string title,
+        string description,
+        uint256 createdAt,
+        uint256 completedAt,
+        uint256 indexed dueDate,
+        bool isCompleted,
         address owner
     );
     event TaskCompleted(uint256 indexed id, uint256 indexed createdAt, uint256 indexed completedAt);
@@ -59,14 +59,14 @@ contract TaskManager {
         userTasks[msg.sender].push(nextTaskId);
 
         emit TaskCreated({
-            id: nextTaskId, 
-            stake: newTask.stake, 
-            title: _title, 
-            description: _description, 
-            createdAt: newTask.createdAt, 
-            completedAt: newTask.completedAt, 
-            dueDate: _dueDate, 
-            isCompleted: newTask.isCompleted, 
+            id: nextTaskId,
+            stake: newTask.stake,
+            title: _title,
+            description: _description,
+            createdAt: newTask.createdAt,
+            completedAt: newTask.completedAt,
+            dueDate: _dueDate,
+            isCompleted: newTask.isCompleted,
             owner: msg.sender
         });
         nextTaskId++;
@@ -84,11 +84,7 @@ contract TaskManager {
         }
         tasks[_id].isCompleted = true;
         tasks[_id].completedAt = block.timestamp;
-        emit TaskCompleted({
-            id: _id, 
-            createdAt: tasks[_id].createdAt, 
-            completedAt: block.timestamp
-        });
+        emit TaskCompleted({id: _id, createdAt: tasks[_id].createdAt, completedAt: block.timestamp});
     }
 
     function getTask(uint256 _id) external view returns (Task memory) {

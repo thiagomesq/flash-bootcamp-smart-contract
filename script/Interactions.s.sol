@@ -2,15 +2,14 @@
 
 pragma solidity ^0.8.26;
 
-import { Script } from "forge-std/Script.sol";
-import { TaskManager } from "src/TaskManager.sol";
+import {Script} from "forge-std/Script.sol";
+import {TaskManager} from "src/TaskManager.sol";
 import {DevOpsTools} from "foundry-devops/src/DevOpsTools.sol";
 
 contract CreateTask is Script {
-
     function createTask(address taskManager) public {
         vm.startBroadcast();
-    
+
         TaskManager(taskManager).createTask{value: 25}("Tarefa de teste", "Apenas um teste", block.timestamp + 7 days);
 
         vm.stopBroadcast();
@@ -23,7 +22,6 @@ contract CreateTask is Script {
 }
 
 contract CompleteTask is Script {
-
     function completeTask(address taskManager, uint256 taskId) public {
         vm.startBroadcast();
 
