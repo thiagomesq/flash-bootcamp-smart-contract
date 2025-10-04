@@ -5,18 +5,20 @@ pragma solidity ^0.8.26;
 import {Test} from "forge-std/Test.sol";
 import {TaskManager} from "src/TaskManager.sol";
 import {DeployTaskManager} from "script/DeployTaskManager.s.sol";
+import {HelperConfig} from "script/HelperConfig.s.sol";
 
 contract TaskManagerTest is Test {
     TaskManager private taskManager;
+    HelperConfig.NetworkConfig private config;
     DeployTaskManager private deployer;
     address private user = makeAddr("user");
 
     function setUp() public {
         deployer = new DeployTaskManager();
-        taskManager = deployer.run();
+        (taskManager, config) = deployer.run();
 
         user = makeAddr("user");
-        vm.deal(user, 100 ether); // Give user some ether for testing
+        vm.deal(user, 10000 ether); // Give user some ether for testing
     }
 
     function testCreateTask() public {
@@ -24,7 +26,7 @@ contract TaskManagerTest is Test {
         string memory description = "This is a test task.";
         uint256 dueDate = block.timestamp + 1 days;
         vm.startPrank(user);
-        taskManager.createTask{value: 10}(title, description, dueDate);
+        taskManager.createTask{value: config.minimumStake}(title, description, dueDate);
 
         TaskManager.Task memory task = taskManager.getTask(0);
         vm.stopPrank();
@@ -37,7 +39,7 @@ contract TaskManagerTest is Test {
 
     function testCompleteTask() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 10}("Test Task", "This is a test task.", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Test Task", "This is a test task.", block.timestamp + 1 days);
         taskManager.completeTask(0);
 
         TaskManager.Task memory task = taskManager.getTask(0);
@@ -48,7 +50,7 @@ contract TaskManagerTest is Test {
 
     function testCompleteTaskRevertsIfNotOwner() public {
         vm.prank(user);
-        taskManager.createTask{value: 10}("Test Task", "This is a test task.", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Test Task", "This is a test task.", block.timestamp + 1 days);
 
         // Simulate another user trying to complete the task
         address otherUser = address(0x123);
@@ -60,7 +62,7 @@ contract TaskManagerTest is Test {
 
     function testCompleteTaskRevertsIfAlreadyCompleted() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 10}("Test Task", "This is a test task.", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Test Task", "This is a test task.", block.timestamp + 1 days);
         taskManager.completeTask(0);
 
         // Attempt to complete the task again
@@ -71,7 +73,7 @@ contract TaskManagerTest is Test {
 
     function testGetTask() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 10}("Test Task", "This is a test task.", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Test Task", "This is a test task.", block.timestamp + 1 days);
         TaskManager.Task memory task = taskManager.getTask(0);
         vm.stopPrank();
 
@@ -90,8 +92,8 @@ contract TaskManagerTest is Test {
 
     function testGetTasks() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 10}("Task 1", "Description 1", block.timestamp + 1 days);
-        taskManager.createTask{value: 50}("Task 2", "Description 2", block.timestamp + 2 days);
+        taskManager.createTask{value: config.minimumStake}("Task 1", "Description 1", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Task 2", "Description 2", block.timestamp + 2 days);
 
         TaskManager.Task[] memory tasks = taskManager.getTasks();
         vm.stopPrank();
@@ -108,7 +110,7 @@ contract TaskManagerTest is Test {
 
     function testGetTasksEmptyIfNotOwner() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 100}("Task 1", "Description 1", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Task 1", "Description 1", block.timestamp + 1 days);
         vm.stopPrank();
 
         // Simulate another user trying to get tasks
@@ -136,8 +138,8 @@ contract TaskManagerTest is Test {
 
     function testGetTasksCount() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 10}("Task 1", "Description 1", block.timestamp + 1 days);
-        taskManager.createTask{value: 20}("Task 2", "Description 2", block.timestamp + 2 days);
+        taskManager.createTask{value: config.minimumStake}("Task 1", "Description 1", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Task 2", "Description 2", block.timestamp + 2 days);
 
         uint256 count = taskManager.getTasksCount();
         vm.stopPrank();
@@ -152,7 +154,7 @@ contract TaskManagerTest is Test {
 
     function testGetTasksCountEmptyIfNotOwner() public {
         vm.startPrank(user);
-        taskManager.createTask{value: 100}("Task 1", "Description 1", block.timestamp + 1 days);
+        taskManager.createTask{value: config.minimumStake}("Task 1", "Description 1", block.timestamp + 1 days);
         vm.stopPrank();
 
         // Simulate another user trying to get tasks count
